@@ -1,7 +1,7 @@
 import sys
 import random
 from PySide6.QtWidgets import QApplication,QMainWindow, QWidget
-from PySide6.QtCore import QTimer, QSize, Qt,QUrl, Slot, Signal, QThread
+from PySide6.QtCore import QTimer,QUrl, Signal, QThread
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
@@ -9,9 +9,19 @@ from ui.gui import Ui_MainWindow
 from ui.UI_Upgrade import Ui_upgradeWidget
 from ui.UI_Achievement import Ui_AchievementWidget
 
-from random import randint 
-
-
+#конвретируем вывод числа в научную нотацию если число больше 99_999
+def convert(number: int) -> str:
+    if number > 99_999: #1.33+e5
+        num = str(int(number))
+        resault = num[0:3]+ "+e"
+        count = 0
+        for _ in num:
+            count += 1
+        resault += str(count-3)
+        return resault
+    else:
+        return str(int(number))
+        
 #создаем класс для всех зданий
 class Build:
     
@@ -34,7 +44,7 @@ class Upgrade(QWidget):
         self.name = name
         self.upgrade_stat = upgrade_stat
         self.number = number
-        self.ui.info_upgrade_lbl.setText(f"price: {str(price)} \n+{number} to {name} profit")
+        self.ui.info_upgrade_lbl.setText(f"price: {convert(price)} \n+{convert(number)} to {name} profit")
         self.ui.buy_upgrade_btn.clicked.connect(self.buy_f)
         
     #создаем слот для обработки покупки
@@ -124,22 +134,22 @@ class apps(QMainWindow):
         timer_music.start(145000)
         
         #создаем объекты классов наших зданий
-        self.house = Build("sprites_town/house.png",1,50)
-        self.hotel = Build(".jpg",5,300)
-        self.tavern = Build("sprites_town/tavern.png",30,1_500)
-        self.restaurant = Build("sprites_town/restaurant.png",75,9_000)
-        self.blacksmith = Build("sprites_town/blacksmith.png",150,30_000)
-        self.tailor = Build("sprites_town/tailor.png",400,100_000)
-        self.alchemy = Build("sprites_town/alchemy.png",1_000,500_000)
-        self.market = Build(".jpg",5_000,3_000_000)
-        self.brothel = Build(".jpg",20_000,20_000_000)
-        self.arena = Build("sprites_town/arena.png",75_000,1_000_000_000)
-        self.barracks = Build(".jpg",200_000,5_000_000_000)
-        self.colosseum = Build("sprites_town/colosseum.png",500_000,25_000_000_000)
-        self.libraly = Build("sprites_town/libraly.png",5_000_000,500_000_000_000)
-        self.church = Build("sprites_town/church.png",25_000_000,5_000_000_000_000)
-        self.cathedral = Build("sprites_town/cathedral.png",200_000_000,50_000_000_000_000)
-        self.castle = Build(".jpg",1_000_000_000,1_000_000_000_000_000)
+        self.house = Build("ui/sprites_town/house.png",1,100)
+        self.hotel = Build("ui/sprites_town/.jpg",2,300)
+        self.tavern = Build("ui/sprites_town/tavern.png",5,900)
+        self.restaurant = Build("ui/sprites_town/restaurant.png",25,4_500)
+        self.blacksmith = Build("ui/sprites_town/blacksmith.png",120,30_000)
+        self.tailor = Build("ui/sprites_town/tailor.png",750,250_000)
+        self.alchemy = Build("ui/sprites_town/alchemy.png",5_000,2_500_000)
+        self.market = Build("ui/sprites_town/.jpg",45_000,33_000_000)
+        self.brothel = Build("ui/sprites_town/.jpg",400_000,450_000_000)
+        self.arena = Build("ui/sprites_town/arena.png",4_500_000,7_000_000_000)
+        self.barracks = Build("ui/sprites_town/.jpg",50_000_000,130_000_000_000)
+        self.colosseum = Build("ui/sprites_town/colosseum.png",5_000_000,2_500_000_000_000)
+        self.libraly = Build("ui/sprites_town/libraly.png",10_000_000_000,50_000_000_000_000)
+        self.church = Build("ui/sprites_town/church.png",150_000_000_000,1_000_000_000_000_000)
+        self.cathedral = Build("ui/sprites_town/cathedral.png",2_000_000_000_000,30_000_000_000_000_000)
+        self.castle = Build("ui/sprites_town/.jpg",35_000_000_000_000,1_000_000_000_000_000_000)
         
         #создаем параметры и статистику игрока
         self.cash = 0 
@@ -179,16 +189,21 @@ class apps(QMainWindow):
         self.ui.X10_Radio.toggled.connect(lambda:self.click_radio(2))
         self.ui.X100_Radio.toggled.connect(lambda:self.click_radio(3))
         
+        #запускаем обновление достижений
+        self.achievemnt()
+        timer = QTimer(self)
+        timer.timeout.connect(self.achievements_update)
+        timer.start(1000)
         
-        
+    def achievemnt(self):
         #создаем все достижения
         #достижений для кликов
         awards_for_click = [
         self.add_upgrade(200,"click",self.click_cash,1),
-        self.add_upgrade(3_000,"click",self.click_cash,98),
-        self.add_upgrade(50_000,"click",self.click_cash,900),
-        self.add_upgrade(1_000_000,"click",self.click_cash,99_000),
-        self.add_upgrade(500_000_000,"click",self.click_cash,9_900_000),
+        self.add_upgrade(3_000,"click",self.click_cash,8),
+        self.add_upgrade(50_000,"click",self.click_cash,90),
+        self.add_upgrade(1_000_000,"click",self.click_cash,9_900),
+        self.add_upgrade(500_000_000_000_000_000,"click",self.click_cash,9_990_000),
         ]  
         
         text_for_click = ["make a 100 clicks", "make a 1000 clicks", "make a 10_000 clicks", "make a 50__000 clicks", "make a 150_000 clicks"]
@@ -200,11 +215,11 @@ class apps(QMainWindow):
         
         #достижений для дома
         awards_for_house = [
-        self.add_upgrade(2_000,"house",self.house.cps,1),
-        self.add_upgrade(20_000,"house",self.house.cps,1),
-        self.add_upgrade(500_000,"house",self.house.cps,1),
-        self.add_upgrade(18_000_000,"house",self.house.cps,1),
-        self.add_upgrade(650_000_000,"house",self.house.cps,1),
+        self.add_upgrade(2_000,"house",self.house.cps,9),
+        self.add_upgrade(20_000,"house",self.house.cps,25),
+        self.add_upgrade(700_000,"house",self.house.cps,50),
+        self.add_upgrade(20_000_000,"house",self.house.cps,75),
+        self.add_upgrade(750_000_000,"house",self.house.cps,100),
         ]  
         
         text_for_house = ["buy a 10 Houses", "buy a 25 Houses", "buy a 50 Houses", "buy a 75 Houses", "buy a 100 Houses"]
@@ -216,11 +231,11 @@ class apps(QMainWindow):
         
         #достижений для отеля
         awards_for_hotel = [
-        self.add_upgrade(10_000,"hotel",self.hotel.cps,1),
-        self.add_upgrade(100_000,"hotel",self.hotel.cps,1),
-        self.add_upgrade(3_000_000,"hotel",self.hotel.cps,1),
-        self.add_upgrade(130_000_000,"hotel",self.hotel.cps,1),
-        self.add_upgrade(3_000_000_000,"hotel",self.hotel.cps,1),
+        self.add_upgrade(6_000,"hotel",self.hotel.cps,18),
+        self.add_upgrade(65_000,"hotel",self.hotel.cps,50),
+        self.add_upgrade(2_000_000,"hotel",self.hotel.cps,100),
+        self.add_upgrade(70_000_000,"hotel",self.hotel.cps,150),
+        self.add_upgrade(2_000_000_000,"hotel",self.hotel.cps,200),
         ]  
         
         text_for_hotel = ["buy a 10 hotels", "buy a 25 hotels", "buy a 50 hotels", "buy a 75 hotels", "buy a 100 hotels"]
@@ -232,11 +247,11 @@ class apps(QMainWindow):
         
         #достижений для таверны
         awards_for_tavern = [
-        self.add_upgrade(50_000,"tavern",self.tavern.cps,1),
-        self.add_upgrade(500_000,"tavern",self.tavern.cps,1),
-        self.add_upgrade(15_000_000,"tavern",self.tavern.cps,1),
-        self.add_upgrade(500_000_000,"tavern",self.tavern.cps,1),
-        self.add_upgrade(15_000_000_000,"tavern",self.tavern.cps,1),
+        self.add_upgrade(20_000,"tavern",self.tavern.cps,50),
+        self.add_upgrade(200_000,"tavern",self.tavern.cps,125),
+        self.add_upgrade(6_000_000,"tavern",self.tavern.cps,250),
+        self.add_upgrade(200_000_000,"tavern",self.tavern.cps,375),
+        self.add_upgrade(8_000_000_000,"tavern",self.tavern.cps,500),
         ]  
         
         text_for_tavern = ["buy a 10 taverns", "buy a 25 taverns", "buy a 50 taverns", "buy a 75 taverns", "buy a 100 taverns"]
@@ -248,11 +263,11 @@ class apps(QMainWindow):
         
         #достижений для ресторана
         awards_for_restaurant = [
-        self.add_upgrade(150_000,"restaurant",self.restaurant.cps,1),
-        self.add_upgrade(1_500_000,"restaurant",self.restaurant.cps,1),
-        self.add_upgrade(100_000_000,"restaurant",self.restaurant.cps,1),
-        self.add_upgrade(3_000_000_000,"restaurant",self.restaurant.cps,1),
-        self.add_upgrade(120_000_000_000,"restaurant",self.restaurant.cps,1),
+        self.add_upgrade(100_000,"restaurant",self.restaurant.cps,250),
+        self.add_upgrade(1_000_000,"restaurant",self.restaurant.cps,625),
+        self.add_upgrade(30_000_000,"restaurant",self.restaurant.cps,1_250),
+        self.add_upgrade(1_000_000_000,"restaurant",self.restaurant.cps,1_875),
+        self.add_upgrade(35_000_000_000,"restaurant",self.restaurant.cps,2_500),
         ]  
         
         text_for_restaurant = ["buy a 10 restaurants", "buy a 25 restaurants", "buy a 50 restaurants", "buy a 75 restaurants", "buy a 100 restaurants"]
@@ -264,11 +279,11 @@ class apps(QMainWindow):
         
         #достижений для кузницы
         awards_for_blacksmith = [
-        self.add_upgrade(1_000_000,"blacksmith",self.blacksmith.cps,1),
-        self.add_upgrade(10_000_000,"blacksmith",self.blacksmith.cps,1),
-        self.add_upgrade(300_000_000,"blacksmith",self.blacksmith.cps,1),
-        self.add_upgrade(12_000_000_000,"blacksmith",self.blacksmith.cps,1),
-        self.add_upgrade(300_000_000_000,"blacksmith",self.blacksmith.cps,1),
+        self.add_upgrade(600_000,"blacksmith",self.blacksmith.cps,1_200),
+        self.add_upgrade(6_000_000,"blacksmith",self.blacksmith.cps,3_000),
+        self.add_upgrade(200_000_000,"blacksmith",self.blacksmith.cps,6_000),
+        self.add_upgrade(7_000_000_000,"blacksmith",self.blacksmith.cps,9_000),
+        self.add_upgrade(200_000_000_000,"blacksmith",self.blacksmith.cps,12_000),
         ]  
         
         text_for_blacksmith = ["buy a 10 blacksmiths", "buy a 25 blacksmiths", "buy a 50 blacksmiths", "buy a 75 blacksmiths", "buy a 100 blacksmiths"]
@@ -280,11 +295,11 @@ class apps(QMainWindow):
         
         #достижений для швейной
         awards_for_tailor = [
-        self.add_upgrade(3_000_000,"tailor",self.tailor.cps,1),
-        self.add_upgrade(30_000_000,"tailor",self.tailor.cps,1),
-        self.add_upgrade(1_200_000_000,"tailor",self.tailor.cps,1),
-        self.add_upgrade(30_000_000_000,"tailor",self.tailor.cps,1),
-        self.add_upgrade(1_200_000_000_000,"tailor",self.tailor.cps,1),
+        self.add_upgrade(5_000_000,"tailor",self.tailor.cps,7_500),
+        self.add_upgrade(50_000_000,"tailor",self.tailor.cps,18_750),
+        self.add_upgrade(1_700_000_000,"tailor",self.tailor.cps,37_500),
+        self.add_upgrade(60_000_000_000,"tailor",self.tailor.cps,56+250),
+        self.add_upgrade(1_700_000_000_000,"tailor",self.tailor.cps,75_000),
         ]  
         
         text_for_tailor = ["buy a 10 tailors", "buy a 25 tailors", "buy a 50 tailors", "buy a 75 tailors", "buy a 100 tailors"]
@@ -296,11 +311,11 @@ class apps(QMainWindow):
         
         #достижений для алхимии
         awards_for_alchemy = [
-        self.add_upgrade(15_000_000,"alchemy",self.alchemy.cps,1),
-        self.add_upgrade(150_000_000,"alchemy",self.alchemy.cps,1),
-        self.add_upgrade(5_000_000_000,"alchemy",self.alchemy.cps,1),
-        self.add_upgrade(150_000_000_000,"alchemy",self.alchemy.cps,1),
-        self.add_upgrade(5_000_000_000_000,"alchemy",self.alchemy.cps,1),
+        self.add_upgrade(50_000_000,"alchemy",self.alchemy.cps,50_000),
+        self.add_upgrade(500_000_000,"alchemy",self.alchemy.cps,125_000),
+        self.add_upgrade(20_000_000_000,"alchemy",self.alchemy.cps,250_000),
+        self.add_upgrade(600_000_000_000,"alchemy",self.alchemy.cps,375_000),
+        self.add_upgrade(20_000_000_000_000,"alchemy",self.alchemy.cps,500_000),
         ]  
         
         text_for_alchemy = ["buy a 10 alchemys", "buy a 25 alchemys", "buy a 50 alchemys", "buy a 75 alchemys", "buy a 100 alchemys"]
@@ -312,11 +327,11 @@ class apps(QMainWindow):
         
         #достижений для рынка
         awards_for_market = [
-        self.add_upgrade(100_000_000,"market",self.market.cps,1),
-        self.add_upgrade(1_000_000_000,"market",self.market.cps,1),
-        self.add_upgrade(30_000_000_000,"market",self.market.cps,1),
-        self.add_upgrade(1_200_000_000_000,"market",self.market.cps,1),
-        self.add_upgrade(30_000_000_000_000,"market",self.market.cps,1),
+        self.add_upgrade(6_000_000_000,"market",self.market.cps,450_000),
+        self.add_upgrade(70_000_000_000,"market",self.market.cps,1_120_000),
+        self.add_upgrade(700_000_000_000,"market",self.market.cps,2_250_000),
+        self.add_upgrade(2_000_000_000_000,"market",self.market.cps,3_370_000),
+        self.add_upgrade(2_500_000_000_000_000,"market",self.market.cps,4_500_000),
         ]  
         
         text_for_market = ["buy a 10 markets", "buy a 25 markets", "buy a 50 markets", "buy a 75 markets", "buy a 100 markets"]
@@ -454,11 +469,7 @@ class apps(QMainWindow):
         self.achievement_castle = Achievement(text_for_castle, needle_progress_for_castle, self.castle.count, awards_for_castle)
         self.ui.achievement_layout.addWidget(self.achievement_castle)
         
-        #запускаем обновление достижений
-        timer = QTimer(self)
-        timer.timeout.connect(self.achievements_update)
-        timer.start(1000)
-        
+
     #функция обновления всех достижений
     def achievements_update(self):
         self.achievement_click.update(self.counter_click, self.ui.upgrade_layout)
@@ -478,28 +489,13 @@ class apps(QMainWindow):
         self.achievement_church.update(self.church.count, self.ui.upgrade_layout)
         self.achievement_cathedral.update(self.cathedral.count, self.ui.upgrade_layout)
         self.achievement_castle.update(self.castle.count, self.ui.upgrade_layout)
-    
-    #конвретируем вывод числа в научную нотацию если число больше 99_999
-    def convert(self, number: int) -> str:
-        if number > 99_999: #1.33+e5
-            num = str(number)
-            resault = num[0] + "." + num[1] + num[2] + "+e"
-            count = 0
-            for _ in num:
-                count += 1
-            resault += str(count-3)
-            
-            return resault
-            
-        else:
-            return str(number)
             
     #функция клика
     def click(self):
         self.cash += self.click_cash[0]
         self.counter_click += 1
         self.count_click_persecond += 1
-        self.ui.cash_label.setText(self.convert(self.cash) + '$')  
+        self.ui.cash_label.setText(convert(self.cash) + '$')  
         
     #функция для добавления автокликов
     def cps_add(self):
@@ -523,8 +519,8 @@ class apps(QMainWindow):
         ]
         cps = sum(build_cps)
         self.cash += cps
-        self.ui.cash_label.setText(self.convert(self.cash) + '$')
-        self.ui.cps_label.setText(self.convert(cps + self.count_click_persecond) + '$ cps')
+        self.ui.cash_label.setText(convert(self.cash) + '$')
+        self.ui.cps_label.setText(convert(cps + self.count_click_persecond * self.click_cash[0]) + '$ cps')
         self.count_click_persecond = 0
 
     #функция создания апгрейд виджета
@@ -547,7 +543,7 @@ class apps(QMainWindow):
         for _ in range(self.X_Buy):
             self.price += (self.selected_building.base_cost * ( 1.15 ** x)) // 1
             x += 1
-        self.ui.price_label.setText(f"Price - " + self.convert(self.price // 1))
+        self.ui.price_label.setText(f"Price - " + convert(self.price))
         
     #функция покупки здания
     def buy_build(self):
@@ -563,7 +559,7 @@ class apps(QMainWindow):
     def info(self,build):
         self.selected_building = build
         self.ui.image_build_label.setPixmap(QPixmap.fromImage(QImage(self.selected_building.image)))
-        self.ui.count_have_label.setText(f"You have {self.selected_building.count} builds| +{self.selected_building.cps} cps")
+        self.ui.count_have_label.setText(f"You have {convert(self.selected_building.count)} builds| +{convert(self.selected_building.cps[0])} cps")
         self.cost_buy()
         
     #функция повтора музыки
@@ -643,4 +639,3 @@ if __name__ == '__main__':
     window.show()
     
     sys.exit(app.exec())
-    
