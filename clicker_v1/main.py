@@ -533,6 +533,7 @@ class apps(QMainWindow):
     def buy_upgrade(self, btn):
         if self.cash >= btn.price:
             btn.upgrade_stat[0] += btn.number
+            self.cash -= btn.price
             btn.deleteLater()
 
     #вывод стоимости здания с покупкой за раз
